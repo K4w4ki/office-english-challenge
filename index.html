@@ -6,10 +6,10 @@
 <title>Daily Tasks — Business English</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💼</text></svg>">
-
 </head>
 <body>
 
@@ -55,28 +55,38 @@
 <!-- ============ WELCOME ============ -->
 <section id="welcome" class="screen welcome-screen">
   <div class="welcome-decor"></div>
+
+  <!-- Seletor de idioma da tela inicial -->
+  <div class="lang-switch" id="welcomeLangSwitch" data-lang="en" role="group" aria-label="Idioma da tela inicial / Welcome screen language">
+    <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+    <div class="lang-switch-track">
+      <span class="lang-switch-thumb" aria-hidden="true"></span>
+      <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+    </div>
+  </div>
   <div class="welcome-grid">
     <div class="welcome-content">
       <span class="tag-pill">
         <span class="tag-pill-dot"></span>
-        Office Simulation · Level 01
+        <span data-i18n="tag">Office Simulation · Level 01</span>
       </span>
-      <h1 class="welcome-title">
+      <h1 class="welcome-title" data-i18n="title">
         Welcome to the <span class="welcome-title-accent">office</span>
       </h1>
-      <p class="welcome-question">Can you survive a day at work?</p>
-      <p class="welcome-desc">Learn how professionals talk about their jobs, daily tasks, and routines — then put your knowledge to the test in a live challenge.</p>
+      <p class="welcome-question" data-i18n="question">Can you survive a day at work?</p>
+      <p class="welcome-desc" data-i18n="desc">Learn how professionals talk about their jobs, daily tasks, and routines — then put your knowledge to the test in a live challenge.</p>
       <div class="welcome-actions">
         <button class="btn btn-primary btn-large" id="startChallengeBtn">
-          <span>Start Challenge</span>
+          <span data-i18n="start">Start Challenge</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="welcome-stats">
-          <div><strong>4</strong><span>phases</span></div>
+          <div><strong>4</strong><span data-i18n="phases">phases</span></div>
           <div class="welcome-stats-divider"></div>
-          <div><strong>38</strong><span>questions</span></div>
+          <div><strong>38</strong><span data-i18n="questions">questions</span></div>
           <div class="welcome-stats-divider"></div>
-          <div><strong>+1000</strong><span>XP available</span></div>
+          <div><strong>+1000</strong><span data-i18n="xp">XP available</span></div>
         </div>
       </div>
     </div>
@@ -91,10 +101,10 @@
           <span class="office-filename">agenda.txt</span>
         </div>
         <div class="office-card-body">
-          <p class="office-line"><span class="line-num">01</span> 09:30 <span>— Answer the phone</span></p>
-          <p class="office-line"><span class="line-num">02</span> 10:00 <span>— Go to a meeting</span></p>
-          <p class="office-line"><span class="line-num">03</span> 11:30 <span>— Write emails</span></p>
-          <p class="office-line office-line-active"><span class="line-num">04</span> 14:00 <span>— Process orders</span></p>
+          <p class="office-line"><span class="line-num">01</span> 09:30 <span data-i18n="line1">— Answer the phone</span></p>
+          <p class="office-line"><span class="line-num">02</span> 10:00 <span data-i18n="line2">— Go to a meeting</span></p>
+          <p class="office-line"><span class="line-num">03</span> 11:30 <span data-i18n="line3">— Write emails</span></p>
+          <p class="office-line office-line-active"><span class="line-num">04</span> 14:00 <span data-i18n="line4">— Process orders</span></p>
           <div class="office-progress">
             <div class="office-progress-fill"></div>
           </div>
@@ -250,54 +260,94 @@
       </div>
 
       <div class="learn-panel active" id="learn-jobs">
+        <div class="learn-toolbar">
+          <div class="lang-switch" data-lang="en" role="group" aria-label="Idioma das frases / Sentences language">
+            <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+            <div class="lang-switch-track">
+              <span class="lang-switch-thumb" aria-hidden="true"></span>
+              <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+              <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+            </div>
+          </div>
+        </div>
         <div class="cards-grid" id="jobsGrid"></div>
       </div>
       <div class="learn-panel" id="learn-tasks">
+        <div class="learn-toolbar">
+          <div class="lang-switch" data-lang="en" role="group" aria-label="Idioma das frases / Sentences language">
+            <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+            <div class="lang-switch-track">
+              <span class="lang-switch-thumb" aria-hidden="true"></span>
+              <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+              <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+            </div>
+          </div>
+        </div>
         <div class="cards-grid" id="tasksGrid"></div>
       </div>
       <div class="learn-panel" id="learn-expressions">
-        <p class="learn-hint">💡 Click a card to reveal its meaning and an example.</p>
+        <div class="learn-toolbar">
+          <div class="lang-switch" data-lang="en" role="group" aria-label="Idioma das frases / Sentences language">
+            <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+            <div class="lang-switch-track">
+              <span class="lang-switch-thumb" aria-hidden="true"></span>
+              <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+              <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+            </div>
+          </div>
+        </div>
+        <p class="learn-hint" data-tr>💡 Click a card to reveal its meaning and an example.</p>
         <div class="cards-grid" id="expressionsGrid"></div>
       </div>
       <div class="learn-panel" id="learn-grammar">
+        <div class="learn-toolbar">
+          <div class="lang-switch" data-lang="en" role="group" aria-label="Idioma das frases / Sentences language">
+            <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+            <div class="lang-switch-track">
+              <span class="lang-switch-thumb" aria-hidden="true"></span>
+              <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+              <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+            </div>
+          </div>
+        </div>
         <div class="grammar-block">
           <div class="grammar-head">
             <span class="grammar-head-icon">🔤</span>
-            <h3 class="grammar-heading">Present Simple — talking about your job</h3>
+            <h3 class="grammar-heading" data-tr>Present Simple — talking about your job</h3>
           </div>
           <div class="grammar-examples">
-            <p><span class="grammar-tag">Be</span> I am a Sales Manager.</p>
-            <p><span class="grammar-tag">Be</span> She is an IT Specialist.</p>
-            <p><span class="grammar-tag">Be</span> They are Production Engineers.</p>
+            <p><span class="grammar-tag">Be</span> <span data-tr>I am a Sales Manager.</span></p>
+            <p><span class="grammar-tag">Be</span> <span data-tr>She is an IT Specialist.</span></p>
+            <p><span class="grammar-tag">Be</span> <span data-tr>They are Production Engineers.</span></p>
           </div>
         </div>
         <div class="grammar-block">
           <div class="grammar-head">
             <span class="grammar-head-icon">📝</span>
-            <h3 class="grammar-heading">Present Simple — daily routines</h3>
+            <h3 class="grammar-heading" data-tr>Present Simple — daily routines</h3>
           </div>
           <div class="grammar-examples">
-            <p><span class="grammar-tag">+</span> I always start work at 8 o'clock.</p>
-            <p><span class="grammar-tag">+</span> She often has meetings.</p>
-            <p><span class="grammar-tag">+</span> They usually come to the office.</p>
-            <p><span class="grammar-tag grammar-tag-neg">−</span> He doesn't call customers.</p>
-            <p><span class="grammar-tag grammar-tag-neg">−</span> She doesn't analyze sales data.</p>
+            <p><span class="grammar-tag">+</span> <span data-tr>I always start work at 8 o'clock.</span></p>
+            <p><span class="grammar-tag">+</span> <span data-tr>She often has meetings.</span></p>
+            <p><span class="grammar-tag">+</span> <span data-tr>They usually come to the office.</span></p>
+            <p><span class="grammar-tag grammar-tag-neg">−</span> <span data-tr>He doesn't call customers.</span></p>
+            <p><span class="grammar-tag grammar-tag-neg">−</span> <span data-tr>She doesn't analyze sales data.</span></p>
           </div>
         </div>
         <div class="grammar-block">
           <div class="grammar-head">
             <span class="grammar-head-icon">⏰</span>
-            <h3 class="grammar-heading">Adverbs of Frequency</h3>
+            <h3 class="grammar-heading" data-tr>Adverbs of Frequency</h3>
           </div>
-          <p class="learn-hint">These words show how often something happens.</p>
+          <p class="learn-hint" data-tr>These words show how often something happens.</p>
           <div class="freq-scale">
             <div class="freq-track"></div>
-            <div class="freq-item" style="left:2%"><span class="freq-dot"></span><span class="freq-word">Never</span><span class="freq-pct">0%</span></div>
-            <div class="freq-item" style="left:20%"><span class="freq-dot"></span><span class="freq-word">Rarely</span><span class="freq-pct">~20%</span></div>
-            <div class="freq-item" style="left:42%"><span class="freq-dot"></span><span class="freq-word">Sometimes</span><span class="freq-pct">~40%</span></div>
-            <div class="freq-item" style="left:64%"><span class="freq-dot"></span><span class="freq-word">Often</span><span class="freq-pct">~65%</span></div>
-            <div class="freq-item" style="left:82%"><span class="freq-dot"></span><span class="freq-word">Usually</span><span class="freq-pct">~85%</span></div>
-            <div class="freq-item" style="left:97%"><span class="freq-dot"></span><span class="freq-word">Always</span><span class="freq-pct">100%</span></div>
+            <div class="freq-item" style="left:2%"><span class="freq-dot"></span><span class="freq-word" data-tr>Never</span><span class="freq-pct">0%</span></div>
+            <div class="freq-item" style="left:20%"><span class="freq-dot"></span><span class="freq-word" data-tr>Rarely</span><span class="freq-pct">~20%</span></div>
+            <div class="freq-item" style="left:42%"><span class="freq-dot"></span><span class="freq-word" data-tr>Sometimes</span><span class="freq-pct">~40%</span></div>
+            <div class="freq-item" style="left:64%"><span class="freq-dot"></span><span class="freq-word" data-tr>Often</span><span class="freq-pct">~65%</span></div>
+            <div class="freq-item" style="left:82%"><span class="freq-dot"></span><span class="freq-word" data-tr>Usually</span><span class="freq-pct">~85%</span></div>
+            <div class="freq-item" style="left:97%"><span class="freq-dot"></span><span class="freq-word" data-tr>Always</span><span class="freq-pct">100%</span></div>
           </div>
         </div>
       </div>
@@ -308,28 +358,38 @@
 
       <div class="challenge-intro" id="challengeIntro">
         <div class="challenge-intro-decor"></div>
+
+        <!-- Seletor de idioma do Challenge -->
+        <div class="lang-switch" id="challengeLangSwitch" data-lang="en" role="group" aria-label="Idioma do Challenge / Challenge language">
+          <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+          <div class="lang-switch-track">
+            <span class="lang-switch-thumb" aria-hidden="true"></span>
+            <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+          </div>
+        </div>
         <span class="tag-pill tag-pill-alt">
           <span class="tag-pill-dot tag-pill-dot-alt"></span>
-          Mini game
+          <span data-i18n="ch_tag">Mini game</span>
         </span>
         <h1 class="challenge-title">Challenge do Dia de Trabalho</h1>
-        <p class="challenge-sub">Can you survive a day at the office?</p>
+        <p class="challenge-sub" data-i18n="ch_sub">Can you survive a day at the office?</p>
         <div class="phase-list">
           <div class="phase-item">
             <span class="phase-num">01</span>
-            <div><strong>Who Are You?</strong><p>Discover your job and what you usually do.</p></div>
+            <div><strong data-i18n="ch_p1">Daily Tasks</strong><p data-i18n="ch_p1d">Complete real workplace sentences.</p></div>
           </div>
           <div class="phase-item">
             <span class="phase-num">02</span>
-            <div><strong>Daily Tasks</strong><p>Complete real workplace sentences.</p></div>
+            <div><strong data-i18n="ch_p2">Who Are You?</strong><p data-i18n="ch_p2d">Discover your job and what you usually do.</p></div>
           </div>
           <div class="phase-item">
             <span class="phase-num">03</span>
-            <div><strong>A Working Day</strong><p>Follow a complete office schedule.</p></div>
+            <div><strong data-i18n="ch_p3">A Working Day</strong><p data-i18n="ch_p3d">Follow a complete office schedule.</p></div>
           </div>
           <div class="phase-item">
             <span class="phase-num">04</span>
-            <div><strong>What Would You Do?</strong><p>React to everyday workplace situations.</p></div>
+            <div><strong data-i18n="ch_p4">What Would You Do?</strong><p data-i18n="ch_p4d">React to everyday workplace situations.</p></div>
           </div>
         </div>
         <button class="btn btn-primary btn-large" id="beginChallengeBtn">
@@ -341,7 +401,7 @@
       <div class="challenge-play" id="challengePlay">
         <div class="challenge-hud">
           <div class="hud-left">
-            <span class="hud-phase" id="hudPhase">PHASE 1 — WHO ARE YOU?</span>
+            <span class="hud-phase" id="hudPhase">PHASE 1 — DAILY TASKS</span>
             <span class="hud-question" id="hudQuestion">Question 1 / 10</span>
           </div>
           <div class="hud-right">
@@ -362,6 +422,10 @@
         </div>
 
         <div class="question-card" id="questionCard">
+          <button class="translate-btn" id="translateBtn" type="button" aria-label="Traduzir alternativas">
+            <span class="translate-btn-icon">🌐</span>
+            <span class="translate-btn-label">EN</span>
+          </button>
           <p class="question-context" id="questionContext"></p>
           <h2 class="question-text" id="questionText"></h2>
           <div class="options-grid" id="optionsGrid"></div>
@@ -400,18 +464,33 @@
       </div>
 
       <div class="classroom-question-card">
+        <!-- Seletor de idioma das alternativas -->
+        <div class="lang-switch" id="classroomLangSwitch" data-lang="en" role="group" aria-label="Idioma das alternativas / Options language">
+          <span class="lang-switch-icon" aria-hidden="true">🌐</span>
+          <div class="lang-switch-track">
+            <span class="lang-switch-thumb" aria-hidden="true"></span>
+            <button type="button" class="lang-opt active" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" class="lang-opt" data-lang="pt" aria-pressed="false">PT</button>
+          </div>
+        </div>
         <span class="hud-question" id="classroomProgress">Question 1 / 10</span>
         <p class="question-context" id="classroomContext"></p>
         <h2 class="question-text" id="classroomQuestionText"></h2>
         <div class="options-grid options-grid-display" id="classroomOptionsGrid"></div>
+        <div class="classroom-explanation" id="classroomExplanation"></div>
       </div>
 
+      <div class="classroom-reveal-row">
+        <button class="btn btn-reveal" id="classroomRevealBtn"><span>👁️ REVELAR RESPOSTA</span><kbd class="kbd-hint">Espaço</kbd></button>
+      </div>
       <div class="classroom-controls">
-        <button class="btn btn-team btn-team-a" id="teamACorrectBtn">TEAM A ACERTOU</button>
-        <button class="btn btn-team btn-team-b" id="teamBCorrectBtn">TEAM B ACERTOU</button>
+        <button class="btn btn-team btn-team-a" id="teamACorrectBtn">TEAM A ACERTOU <kbd class="kbd-hint">1</kbd></button>
+        <button class="btn btn-team btn-team-b" id="teamBCorrectBtn">TEAM B ACERTOU <kbd class="kbd-hint">2</kbd></button>
       </div>
       <div class="classroom-controls-secondary">
-        <button class="btn btn-ghost" id="classroomNextBtn">Next question →</button>
+        <button class="btn btn-ghost" id="classroomNoneBtn">Ninguém acertou <kbd class="kbd-hint">0</kbd></button>
+        <button class="btn btn-ghost" id="classroomUndoBtn" disabled>↶ Desfazer <kbd class="kbd-hint">U</kbd></button>
+        <button class="btn btn-ghost" id="classroomNextBtn">Next question → <kbd class="kbd-hint">N</kbd></button>
         <button class="btn btn-ghost" id="classroomResetBtn">Reset scores</button>
       </div>
 
