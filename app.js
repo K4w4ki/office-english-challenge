@@ -36,6 +36,108 @@
   }
 
   /* =========================================================
+     CHALLENGE STATE (declarado cedo para uso em translate)
+     ========================================================= */
+  const challenge = {
+    phaseIndex: 0,
+    questionIndex: 0,
+    questions: [],
+    timerInterval: null,
+    timeLeft: 0,
+    answered: false,
+    totalQuestionsAllPhases: 0,
+    questionsDoneAllPhases: 0,
+  };
+
+  /* =========================================================
+     TRANSLATE BUTTON — Tradução em tempo real das alternativas
+     ========================================================= */
+  const translateState = { active: false };
+
+  function getTranslation(enText){
+    if(typeof OPTIONS_TRANSLATIONS === "undefined") return enText;
+    return OPTIONS_TRANSLATIONS[enText] || enText;
+  }
+
+  function applyTranslation(){
+    if(!challenge.questions || !challenge.questions.length) return;
+    const q = challenge.questions[challenge.questionIndex];
+    if(!q) return;
+
+    const btns = $$(".option-btn", $("#optionsGrid"));
+    btns.forEach((btn, i)=>{
+      const textSpan = btn.querySelector("span:last-child");
+      if(!textSpan) return;
+      const original = q.options[i];
+      textSpan.textContent = translateState.active
+        ? getTranslation(original)
+        : original;
+    });
+  }
+
+  function toggleTranslation(){
+    translateState.active = !translateState.active;
+    const btn = $("#translateBtn");
+    if(!btn) return;
+    btn.classList.toggle("active", translateState.active);
+    btn.setAttribute("aria-pressed", String(translateState.active));
+    const label = btn.querySelector(".translate-btn-label");
+    if(label) label.textContent = translateState.active ? "PT" : "EN";
+    applyTranslation();
+  }
+
+  function bindTranslateButton(){
+    const btn = $("#translateBtn");
+    if(btn && !btn.dataset.bound){
+      btn.addEventListener("click", toggleTranslation);
+      btn.dataset.bound = "1";
+    }
+  }
+
+
+  /* =========================================================
+     LANGUAGE SWITCH — tradução por seção (EN | PT): tela inicial e Challenge
+     ========================================================= */
+  function initLangSwitch(rootSel, switchSel, dict){
+    const wrap = $(rootSel);
+    const sw = $(switchSel);
+    if(!wrap || !sw) return;
+
+    const els = $$("[data-i18n]", wrap);
+    els.forEach(el => { el.dataset.en = el.innerHTML; }); // guarda o original em inglês
+
+    const opts = $$(".lang-opt", sw);
+    let current = "en";
+    let busy = false;
+
+    function setLang(lang){
+      if(lang === current || busy) return;
+      busy = true;
+      current = lang;
+
+      sw.dataset.lang = lang;
+      opts.forEach(o => {
+        const on = o.dataset.lang === lang;
+        o.classList.toggle("active", on);
+        o.setAttribute("aria-pressed", String(on));
+      });
+
+      // fade out -> troca o texto -> fade in
+      wrap.classList.add("lang-swapping");
+      setTimeout(() => {
+        els.forEach(el => {
+          const pt = dict ? dict[el.dataset.i18n] : null;
+          el.innerHTML = (lang === "pt" && pt) ? pt : el.dataset.en;
+        });
+        wrap.classList.remove("lang-swapping");
+        busy = false;
+      }, 180);
+    }
+
+    opts.forEach(o => o.addEventListener("click", () => setLang(o.dataset.lang)));
+  }
+
+  /* =========================================================
      INTRO — SEQUÊNCIA MAIS LONGA E DRAMÁTICA
      ========================================================= */
   function playIntro(){
@@ -64,23 +166,18 @@
 
     skipBtn.addEventListener("click", finishIntro);
 
-    // ⏱️ TIMINGS MAIS LONGOS — intro agora dura ~9s no total
-    // Step 1: "A project by" — 1.8s
     step1.classList.add("show");
 
-    // Step 2: Nomes — entra aos 1.8s, fica 2.6s
     timers.push(setTimeout(()=>{
       step1.classList.remove("show"); step1.classList.add("hide");
       step2.classList.add("show");
     }, 1800));
 
-    // Step 3: Título principal — entra aos 4.4s, fica 4.6s
     timers.push(setTimeout(()=>{
       step2.classList.remove("show"); step2.classList.add("hide");
       step3.classList.add("show");
     }, 4400));
 
-    // Finalização — 9s
     timers.push(setTimeout(finishIntro, 9000));
   }
 
@@ -175,17 +272,17 @@
     jobsGrid.innerHTML = JOBS.map(j => `
       <div class="job-card">
         <span class="job-icon">${j.icon}</span>
-        <span class="job-name">${j.name}</span>
-        <p class="job-desc">${j.desc}</p>
-        <p class="job-activity">"${j.activity}"</p>
+        <span class="job-name" data-tr>${j.name}</span>
+        <p class="job-desc" data-tr>${j.desc}</p>
+        <p class="job-activity" data-tr>"${j.activity}"</p>
       </div>
     `).join("");
 
     const tasksGrid = $("#tasksGrid");
     tasksGrid.innerHTML = DAILY_TASKS.map(t => `
       <div class="task-card">
-        <span class="task-phrase">${t.phrase}</span>
-        <span class="task-example">"${t.example}"</span>
+        <span class="task-phrase" ${t.pt ? `data-pt="${String(t.pt).replace(/"/g,"&quot;")}"` : ""} data-tr>${t.phrase}</span>
+        <span class="task-example" data-tr>"${t.example}"</span>
         ${t.pt ? `<span class="task-pt">🇧🇷 ${t.pt}</span>` : ""}
       </div>
     `).join("");
@@ -200,12 +297,69 @@
         <span class="expr-hint">Toque para revelar</span>
         <div class="expr-back">
           <span class="expr-meaning">${e.meaning}</span>
-          <span class="expr-example">"${e.example}"</span>
+          <span class="expr-example" data-tr>"${e.example}"</span>
         </div>
       </div>
     `).join("");
     $$(".expr-card", exprGrid).forEach(card=>{
       card.addEventListener("click", ()=> card.classList.toggle("flipped"));
+    });
+  }
+
+
+  /* =========================================================
+     LEARN — botão 🌐 EN | PT em cada seção (Jobs, Daily Tasks, Expressions, Grammar)
+     Cada seção tem seu próprio idioma. Elementos com data-tr são traduzidos:
+     - data-pt="..." → tradução explícita (ex.: campo pt das Daily Tasks)
+     - senão procura o texto em LEARN_TRANSLATIONS
+     ========================================================= */
+  function learnLookup(en){
+    if(typeof LEARN_TRANSLATIONS === "undefined") return null;
+    const t = en.trim();
+    const wrapped = t.length > 1 && t.startsWith('"') && t.endsWith('"');
+    const core = wrapped ? t.slice(1, -1) : t;
+    const pt = LEARN_TRANSLATIONS[core];
+    if(!pt) return null;
+    return wrapped ? `"${pt}"` : pt;
+  }
+
+  function initLearnLang(){
+    $$(".learn-panel").forEach(panel=>{
+      const sw = panel.querySelector(".lang-switch");
+      if(!sw) return;
+      const els = $$("[data-tr]", panel);
+      els.forEach(el => { el.dataset.en = el.innerHTML; });
+      const opts = $$(".lang-opt", sw);
+      panel.dataset.lang = "en";
+      let current = "en";
+      let busy = false;
+
+      function setLang(lang){
+        if(lang === current || busy) return;
+        busy = true;
+        current = lang;
+        panel.dataset.lang = lang;
+        sw.dataset.lang = lang;
+        opts.forEach(o=>{
+          const on = o.dataset.lang === lang;
+          o.classList.toggle("active", on);
+          o.setAttribute("aria-pressed", String(on));
+        });
+        panel.classList.add("lang-swapping");
+        setTimeout(()=>{
+          els.forEach(el=>{
+            if(lang === "pt"){
+              const pt = el.dataset.pt || learnLookup(el.dataset.en);
+              el.innerHTML = pt || el.dataset.en;
+            } else {
+              el.innerHTML = el.dataset.en;
+            }
+          });
+          panel.classList.remove("lang-swapping");
+          busy = false;
+        }, 180);
+      }
+      opts.forEach(o => o.addEventListener("click", ()=> setLang(o.dataset.lang)));
     });
   }
 
@@ -221,17 +375,6 @@
   /* =========================================================
      CHALLENGE ENGINE
      ========================================================= */
-  const challenge = {
-    phaseIndex: 0,
-    questionIndex: 0,
-    questions: [],
-    timerInterval: null,
-    timeLeft: 0,
-    answered: false,
-    totalQuestionsAllPhases: 0,
-    questionsDoneAllPhases: 0,
-  };
-
   function totalChallengeQuestions(){
     return CHALLENGE_PHASES.reduce((sum,p)=> sum + p.questions.length, 0);
   }
@@ -243,6 +386,15 @@
     state.currentCombo = 0;
     state.bestCombo = 0;
     updateTopBar();
+
+    // Reset do botão de tradução
+    translateState.active = false;
+    const tBtn = $("#translateBtn");
+    if(tBtn){
+      tBtn.classList.remove("active");
+      const lbl = tBtn.querySelector(".translate-btn-label");
+      if(lbl) lbl.textContent = "EN";
+    }
 
     challenge.phaseIndex = 0;
     challenge.questionsDoneAllPhases = 0;
@@ -303,6 +455,9 @@
       btn.addEventListener("click", ()=> handleAnswer(i, q, btn));
       grid.appendChild(btn);
     });
+
+    // Reaplica tradução se o botão estiver ativo
+    if(translateState.active) applyTranslation();
 
     $("#feedbackBox").innerHTML = "";
     $("#feedbackBox").classList.remove("show");
@@ -478,18 +633,58 @@
     $("#resultsMsg1").textContent = rank.message;
     $("#resultsMsg2").textContent = "But tomorrow… there's a meeting.";
   }
-  
+
   /* =========================================================
      CLASSROOM MODE
      ========================================================= */
-  const classroomState = { started:false, index:0, scoreA:0, scoreB:0, questions:[] };
+  const classroomState = { started:false, index:0, scoreA:0, scoreB:0, questions:[], revealed:false, awarded:null };
+  const CLASSROOM_POINTS = 100;
+  let classroomLang = "en"; // idioma das alternativas no Classroom (mantido entre perguntas)
+
+  // Mostra as alternativas em inglês ou português conforme o idioma atual
+  function paintClassroomOptions(){
+    const q = classroomState.questions[classroomState.index];
+    if(!q) return;
+    $$(".option-btn", $("#classroomOptionsGrid")).forEach((el,i)=>{
+      const span = el.querySelector("span:last-child");
+      if(!span) return;
+      span.textContent = classroomLang === "pt" ? getTranslation(q.options[i]) : q.options[i];
+    });
+  }
+
+  function setClassroomLang(lang){
+    if(lang === classroomLang) return;
+    classroomLang = lang;
+    const sw = $("#classroomLangSwitch");
+    sw.dataset.lang = lang;
+    $$(".lang-opt", sw).forEach(o=>{
+      const on = o.dataset.lang === lang;
+      o.classList.toggle("active", on);
+      o.setAttribute("aria-pressed", String(on));
+    });
+    const grid = $("#classroomOptionsGrid");
+    grid.classList.add("lang-swapping");
+    setTimeout(()=>{
+      paintClassroomOptions();
+      grid.classList.remove("lang-swapping");
+    }, 180);
+  }
+
+  $$("#classroomLangSwitch .lang-opt").forEach(o=>{
+    o.addEventListener("click", ()=> setClassroomLang(o.dataset.lang));
+  });
 
   function initClassroom(){
     classroomState.started = true;
     classroomState.index = 0;
     classroomState.scoreA = 0;
     classroomState.scoreB = 0;
-    classroomState.questions = shuffle(CLASSROOM_QUESTIONS);
+    // Embaralha a ordem das perguntas e também das alternativas
+    // (na Fase 4 a resposta certa era sempre a letra A)
+    classroomState.questions = shuffle(CLASSROOM_QUESTIONS).map(q=>{
+      const order = shuffle(q.options.map((_,i)=>i));
+      return { ...q, options: order.map(i=>q.options[i]), correct: order.indexOf(q.correct) };
+    });
     updateClassroomScores();
     $("#classroomWinner").classList.remove("show");
     renderClassroomQuestion();
@@ -498,12 +693,20 @@
   function renderClassroomQuestion(){
     if(classroomState.index >= classroomState.questions.length) classroomState.index = 0;
     const q = classroomState.questions[classroomState.index];
+    classroomState.revealed = false;
+    classroomState.awarded = null;
+
     $("#classroomProgress").textContent = `Question ${classroomState.index+1} / ${classroomState.questions.length}`;
     $("#classroomContext").textContent = q.context || "";
     $("#classroomQuestionText").textContent = q.text;
 
     const grid = $("#classroomOptionsGrid");
     grid.innerHTML = "";
+    grid.classList.remove("revealed");
+    const exp = $("#classroomExplanation");
+    exp.classList.remove("show");
+    exp.textContent = "";
+
     const letters = ["A","B","C","D"];
     q.options.forEach((opt,i)=>{
       const div = document.createElement("div");
@@ -511,13 +714,37 @@
       div.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
       grid.appendChild(div);
     });
+    paintClassroomOptions();
+    updateClassroomControls();
   }
 
   function revealClassroomAnswer(){
+    if(classroomState.revealed) return;
+    classroomState.revealed = true;
     const q = classroomState.questions[classroomState.index];
-    $$(".option-btn", $("#classroomOptionsGrid")).forEach((el,i)=>{
+    const grid = $("#classroomOptionsGrid");
+    grid.classList.add("revealed");
+    $$(".option-btn", grid).forEach((el,i)=>{
       if(i === q.correct) el.classList.add("correct");
     });
+    if(q.explanation){
+      const exp = $("#classroomExplanation");
+      exp.textContent = "💡 " + q.explanation;
+      exp.classList.add("show");
+    }
+    updateClassroomControls();
+  }
+
+  function updateClassroomControls(){
+    const st = classroomState;
+    const locked = !!st.awarded;
+    $("#teamACorrectBtn").disabled = locked;
+    $("#teamBCorrectBtn").disabled = locked;
+    $("#classroomNoneBtn").disabled = locked;
+    $("#classroomUndoBtn").disabled = !locked;
+    const rb = $("#classroomRevealBtn");
+    rb.disabled = st.revealed;
+    rb.querySelector("span").textContent = st.revealed ? "✅ RESPOSTA REVELADA" : "👁️ REVELAR RESPOSTA";
   }
 
   function updateClassroomScores(){
@@ -531,23 +758,62 @@
     el.classList.add("bump");
   }
 
-  $("#teamACorrectBtn").addEventListener("click", ()=>{
-    classroomState.scoreA += 100;
-    updateClassroomScores(); bumpScore($("#teamAScore"));
+  // Marca o ponto (ou "ninguém") uma única vez por pergunta e já revela a resposta
+  function awardClassroom(team){
+    if(classroomState.awarded) return;
+    classroomState.awarded = team;
+    if(team === "A"){ classroomState.scoreA += CLASSROOM_POINTS; updateClassroomScores(); bumpScore($("#teamAScore")); }
+    if(team === "B"){ classroomState.scoreB += CLASSROOM_POINTS; updateClassroomScores(); bumpScore($("#teamBScore")); }
     revealClassroomAnswer();
-  });
-  $("#teamBCorrectBtn").addEventListener("click", ()=>{
-    classroomState.scoreB += 100;
-    updateClassroomScores(); bumpScore($("#teamBScore"));
-    revealClassroomAnswer();
-  });
-  $("#classroomNextBtn").addEventListener("click", ()=>{
+    updateClassroomControls();
+  }
+
+  // Desfaz a marcação (caso clique no time errado)
+  function undoClassroomAward(){
+    const t = classroomState.awarded;
+    if(!t) return;
+    if(t === "A"){ classroomState.scoreA -= CLASSROOM_POINTS; }
+    if(t === "B"){ classroomState.scoreB -= CLASSROOM_POINTS; }
+    classroomState.awarded = null;
+    updateClassroomScores();
+    updateClassroomControls();
+  }
+
+  function nextClassroomQuestion(){
     classroomState.index++;
     if(classroomState.index >= classroomState.questions.length) showClassroomWinner();
     else renderClassroomQuestion();
-  });
+  }
+
+  $("#classroomRevealBtn").addEventListener("click", revealClassroomAnswer);
+  $("#teamACorrectBtn").addEventListener("click", ()=> awardClassroom("A"));
+  $("#teamBCorrectBtn").addEventListener("click", ()=> awardClassroom("B"));
+  $("#classroomNoneBtn").addEventListener("click", ()=> awardClassroom("none"));
+  $("#classroomUndoBtn").addEventListener("click", undoClassroomAward);
+  $("#classroomNextBtn").addEventListener("click", nextClassroomQuestion);
   $("#classroomResetBtn").addEventListener("click", initClassroom);
   $("#classroomPlayAgainBtn").addEventListener("click", initClassroom);
+
+  // Atalhos de teclado para quem apresenta
+  document.addEventListener("keydown", (e)=>{
+    const view = $("#view-classroom");
+    if(!view || !view.classList.contains("active")) return;
+    if($("#classroomWinner").classList.contains("show")) return;
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.target.closest && e.target.closest("input, textarea, select")) return;
+    const onButton = e.target.closest && e.target.closest("button");
+    if(onButton && (e.key === " " || e.key === "Enter")) return; // deixa o botão focado agir sozinho
+
+    switch(e.key){
+      case " ": case "r": case "R": e.preventDefault(); revealClassroomAnswer(); break;
+      case "1": awardClassroom("A"); break;
+      case "2": awardClassroom("B"); break;
+      case "0": awardClassroom("none"); break;
+      case "u": case "U": undoClassroomAward(); break;
+      case "n": case "N": case "ArrowRight": nextClassroomQuestion(); break;
+      case "t": case "T": setClassroomLang(classroomLang === "en" ? "pt" : "en"); break;
+    }
+  });
 
   function showClassroomWinner(){
     const winnerBox = $("#classroomWinner");
@@ -595,6 +861,12 @@
   function init(){
     renderLearn();
     updateTopBar();
+    bindTranslateButton();
+    initLearnLang();
+    initLangSwitch("#welcome", "#welcomeLangSwitch",
+      typeof WELCOME_TRANSLATIONS !== "undefined" ? WELCOME_TRANSLATIONS : null);
+    initLangSwitch("#challengeIntro", "#challengeLangSwitch",
+      typeof CHALLENGE_TRANSLATIONS !== "undefined" ? CHALLENGE_TRANSLATIONS : null);
     playIntro();
     initFakeScrollbar();
   }
@@ -618,14 +890,12 @@
       );
       const winHeight = window.innerHeight;
 
-      // Se a página é menor que a tela, esconde a barra
       if(docHeight <= winHeight + 4){
         thumb.style.opacity = "0";
         return;
       }
       thumb.style.opacity = "";
 
-      // Proporção visível
       const thumbRatio = winHeight / docHeight;
       const thumbHeight = Math.max(thumbRatio * winHeight, 40);
       const maxTop = winHeight - thumbHeight - 8;
@@ -656,7 +926,6 @@
       }, 900);
     }
 
-    // 🖱️ Arrastar a thumb
     let dragging = false;
     let startY = 0;
     let startScrollTop = 0;
@@ -678,7 +947,7 @@
         document.documentElement.scrollHeight
       );
       const winHeight = window.innerHeight;
-      const ratio = (docHeight - winHeight) / (winHeight - 40); // thumb altura min 40
+      const ratio = (docHeight - winHeight) / (winHeight - 40);
       window.scrollTo(0, startScrollTop + delta * ratio);
     });
 
@@ -689,7 +958,6 @@
       document.body.style.cursor = "";
     });
 
-    // 🖱️ Clique na track (fora da thumb) = pula
     bar.addEventListener("click", (e) => {
       if(e.target === thumb) return;
       const clickY = e.clientY;
@@ -705,12 +973,10 @@
       });
     });
 
-    // 🔄 Eventos
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
     window.addEventListener("load", scheduleUpdate);
 
-    // 🔁 Observa mudanças no DOM (troca de views, modal, etc.)
     const observer = new MutationObserver(scheduleUpdate);
     observer.observe(document.body, {
       childList: true,
@@ -719,11 +985,10 @@
       attributeFilter: ["class", "style"]
     });
 
-    // 🚀 Primeira renderização (após o layout)
     setTimeout(update, 100);
     setTimeout(update, 600);
     setTimeout(update, 1500);
   }
-  
+
   document.addEventListener("DOMContentLoaded", init);
 })();
