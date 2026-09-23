@@ -56,6 +56,8 @@ A dedicated learning section containing:
 
 Students can explore professional roles and learn how common workplace activities are described in English.
 
+Each section has its own **🌐 EN | PT** switch to translate the sentences into Portuguese and back.
+
 ---
 
 ### 🎯 Business Day Challenge
@@ -64,13 +66,13 @@ The main interactive activity of the project.
 
 The challenge is divided into four phases:
 
-#### Phase 1 — Who Are You?
-
-Learn about different professional roles and identify what people do in their jobs.
-
-#### Phase 2 — Daily Tasks
+#### Phase 1 — Daily Tasks
 
 Practice vocabulary related to common activities performed during the workday.
+
+#### Phase 2 — Who Are You?
+
+Learn about different professional roles and identify what people do in their jobs.
 
 #### Phase 3 — A Working Day
 
@@ -79,6 +81,8 @@ Follow workplace situations and answer questions about professional routines.
 #### Phase 4 — What Would You Do?
 
 Apply what you have learned to practical workplace situations.
+
+During the questions, the **🌐** button translates the answer options into Portuguese. The welcome screen and the Challenge intro also have an **EN | PT** switch.
 
 ---
 
@@ -100,13 +104,13 @@ Players can unlock achievements such as:
 
 * 🥇 First Correct Answer
 * 🔥 Combo x3
-* ⭐ Phase Complete
+* 📍 Phase Complete
 * 🏆 Challenge Survivor
-* 💯 Perfect Accuracy
+* 💎 Perfect Accuracy
 
 ### Ranks
 
-At the end of the challenge, the player receives a performance-based rank:
+At the end of the challenge, the player receives a rank based on their accuracy (90%+ = CEO Material, 70%+ = Great Professional, 50%+ = Good Start):
 
 | Rank                       | Description                                                                |
 | -------------------------- | -------------------------------------------------------------------------- |
@@ -126,7 +130,13 @@ The class can be divided into:
 * **TEAM A**
 * **TEAM B**
 
-The presenter can control the questions and keep track of the teams' scores during the activity.
+The presenter can control the questions and keep track of the teams' scores during the activity:
+
+* **15 selected questions** (shuffled every game, including the answer options)
+* **Reveal answer** button, showing the correct option and an explanation before awarding points
+* Award the point to **Team A**, **Team B**, or **nobody** — and **undo** if you click the wrong team
+* **🌐 EN | PT** switch to show the answer options in Portuguese
+* Keyboard shortcuts: `Space`/`R` reveal · `1` Team A · `2` Team B · `0` nobody · `U` undo · `N`/`→` next · `T` translate
 
 The objective is to turn the final part of the seminar into a collaborative competition instead of simply ending with a traditional presentation.
 
